@@ -1,6 +1,6 @@
 name: Build and Test
 
-on: 
+on:
   push:
     branches:
       - "main"
@@ -9,21 +9,32 @@ on:
       - "main"
     
 jobs:
+  # Run tests first
   test:
     runs-on: ubuntu-latest
 
     steps: 
-    - name: Checkout Code
-      uses: actions/checkout@v2
-    - name: Setup Python Environment
-      uses: actions/setup-python@v2
-      with: 
-        python-version: "3.x"
-    - name: Install Dependencies
-      run: | 
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+      - name: Checkout Code
+        uses: actions/checkout@v2
+      - name: Setup Python Environment
+        uses: actions/setup-python@v2
+        with: 
+          python-version: "3.x"
+      - name: Install Dependencies
+        run: | 
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run Test
+        run: |
+          python manage.py test
 
-    - name: Run Test
-      run: |
-        python manage.py test
+  # Build and deploy after successful tests
+  build:
+      runs-on: ubuntu-latest
+      steps:
+          - name: Deploy to Render 
+            uses: johnbeynon/render-deploy-action@v0.0.8  # Consider checking for newer versions
+            with:
+              service-id: ${{ secrets.MY_RENDER_SERVICE_ID }}
+              api-key: ${{ secrets.MY_RENDER_API_KEY }}
+              wait-for-success: true
