@@ -29,7 +29,7 @@ jobs:
           python manage.py test
 
   # Build and deploy after successful tests
-  build:
+  deploy:
       runs-on: ubuntu-latest
       steps:
           - name: Deploy to Render 
